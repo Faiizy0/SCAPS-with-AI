@@ -48,6 +48,7 @@ export interface Simulation {
     ff: number;
     pce: number;
   };
+  spacePrediction?: string;
 }
 
 export const LAYER_TYPES = [

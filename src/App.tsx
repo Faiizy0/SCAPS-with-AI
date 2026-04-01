@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { db, OperationType, handleFirestoreError } from './firebase';
 import { collection, query, onSnapshot, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, orderBy } from 'firebase/firestore';
 import { Simulation, Layer, InterfaceDefect, LAYER_TYPES } from './types';
-import { generateCellImage } from './services/geminiService';
+import { generateCellImage, predictSpacePerformance } from './services/geminiService';
+import Markdown from 'react-markdown';
 import { 
   Plus, 
   Trash2, 
@@ -14,7 +15,9 @@ import {
   Image as ImageIcon,
   Info,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Rocket,
+  Sparkles
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -24,6 +27,7 @@ export default function App() {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [generatingImage, setGeneratingImage] = useState(false);
+  const [predictingSpace, setPredictingSpace] = useState(false);
 
   useEffect(() => {
     const q = query(collection(db, 'simulations'), orderBy('updatedAt', 'desc'));
@@ -138,6 +142,19 @@ export default function App() {
     setGeneratingImage(false);
   };
 
+  const handlePredictSpace = async () => {
+    if (!activeSim) return;
+    setPredictingSpace(true);
+    const prediction = await predictSpacePerformance(activeSim);
+    if (prediction) {
+      setActiveSim({ ...activeSim, spacePrediction: prediction });
+      if (activeSim.id) {
+        await updateDoc(doc(db, 'simulations', activeSim.id), { spacePrediction: prediction, updatedAt: serverTimestamp() });
+      }
+    }
+    setPredictingSpace(false);
+  };
+
   return (
     <div className="flex h-screen bg-slate-50 text-slate-900 font-sans overflow-hidden">
       {/* Sidebar */}
@@ -160,6 +177,21 @@ export default function App() {
             <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
             New Simulation
           </button>
+
+          {activeSim && (
+            <button 
+              onClick={handlePredictSpace}
+              disabled={predictingSpace}
+              className="w-full mt-4 flex items-center justify-center gap-3 px-6 py-4 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition-all font-bold shadow-xl shadow-blue-200 active:scale-[0.98] group disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {predictingSpace ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <Rocket className="w-5 h-5 group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" />
+              )}
+              Space Predictor
+            </button>
+          )}
         </div>
 
         <div className="flex-1 overflow-y-auto px-6 py-8 space-y-6">
@@ -516,6 +548,52 @@ export default function App() {
                   ))}
                 </div>
               </section>
+
+              {/* Space Environment Predictor Section */}
+              {(activeSim.spacePrediction || predictingSpace) && (
+                <section className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-bold text-xl flex items-center gap-2 text-slate-900 font-black">
+                      <Rocket className="w-5 h-5 text-blue-600" />
+                      Space Environment Predictor
+                    </h3>
+                  </div>
+
+                  <div className="bg-white p-10 rounded-[2.5rem] border border-slate-200 shadow-sm relative overflow-hidden group hover:shadow-2xl hover:border-blue-100 transition-all duration-500">
+                    {predictingSpace && (
+                      <div className="absolute inset-0 bg-white/80 backdrop-blur-md z-10 flex flex-col items-center justify-center gap-6">
+                        <div className="relative">
+                          <Loader2 className="w-16 h-16 text-blue-600 animate-spin" />
+                          <Rocket className="w-6 h-6 text-blue-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+                        </div>
+                        <div className="text-center">
+                          <p className="font-black text-slate-900 text-lg tracking-tight">Analyzing Space Environment Performance...</p>
+                          <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-2">Simulating radiation, thermal cycling, and vacuum effects</p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div className="flex items-center justify-between mb-10">
+                      <div className="flex items-center gap-4">
+                        <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform duration-500 shadow-sm shadow-blue-100">
+                          <Sparkles className="w-7 h-7" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-black text-slate-900 uppercase tracking-[0.2em]">AI Analysis Report</p>
+                          <p className="text-[10px] text-blue-600 font-black uppercase tracking-[0.3em] mt-1">Powered by Gemini 3.1 Pro</p>
+                        </div>
+                      </div>
+                      <div className="px-4 py-2 bg-slate-50 rounded-full border border-slate-100">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Status: Ready</p>
+                      </div>
+                    </div>
+
+                    <div className="prose prose-slate prose-sm max-w-none prose-headings:text-slate-900 prose-headings:font-black prose-headings:tracking-tight prose-p:text-slate-600 prose-p:leading-relaxed prose-strong:text-blue-600 prose-strong:font-black prose-ul:list-disc prose-ul:pl-6">
+                      <Markdown>{activeSim.spacePrediction || ""}</Markdown>
+                    </div>
+                  </div>
+                </section>
+              )}
             </div>
           </>
         ) : (
