@@ -57,10 +57,11 @@ export async function predictSpacePerformance(simulation: any): Promise<string |
       - Vacuum conditions (outgassing).
       - Ultraviolet (UV) degradation.
       
-      Provide your feedback in Markdown format with the following sections:
-      1. **Space Performance Prediction**: A summary of expected efficiency and stability in space.
-      2. **Pros and Cons of Materials**: Analyze the specific materials used in the context of space durability.
-      3. **Suggestions for Improvement**: Recommend changes to the structure or materials to enhance space performance (e.g., radiation hardening, cover glass, specific material swaps).
+      Provide your feedback in Markdown format with the following 4 categories:
+      1. **Performance change (Voc, Jsc, FF, PCE) compare to the original**: Estimate the percentage change in these parameters.
+      2. **Pros**: List the advantages of this structure in space.
+      3. **Cons**: List the disadvantages and risks in space.
+      4. **Suggestions**: Recommend changes to the structure or materials to enhance space performance (e.g., radiation hardening, cover glass, specific material swaps).
     `;
 
     const response = await ai.models.generateContent({
