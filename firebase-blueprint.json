@@ -1,0 +1,142 @@
+{
+  "entities": {
+    "Simulation": {
+      "title": "Simulation",
+      "description": "A SCAPS simulation configuration for a solar cell.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the simulation."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the simulation."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last update timestamp."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Owner of the simulation."
+        },
+        "layers": {
+          "type": "array",
+          "items": {
+            "$ref": "Layer"
+          }
+        },
+        "interfaces": {
+          "type": "array",
+          "items": {
+            "$ref": "InterfaceDefect"
+          }
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "AI generated image URL of the cell structure."
+        }
+      },
+      "required": ["name", "userId", "layers", "interfaces"]
+    },
+    "Layer": {
+      "title": "Layer",
+      "description": "Parameters for a single layer in the solar cell.",
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["Right Contact", "Window", "Buffer", "Absorber", "ETL", "HTL", "Interconnection", "Left Contact"]
+        },
+        "material": {
+          "type": "string",
+          "description": "Material name (e.g., MAPbI3, TiO2)."
+        },
+        "thickness": {
+          "type": "number",
+          "description": "Thickness in micrometers."
+        },
+        "bandGap": {
+          "type": "number",
+          "description": "Bandgap in eV."
+        },
+        "electronAffinity": {
+          "type": "number",
+          "description": "Electron affinity in eV."
+        },
+        "dielectricPermittivity": {
+          "type": "number",
+          "description": "Relative dielectric permittivity."
+        },
+        "cbEffectiveDensity": {
+          "type": "number",
+          "description": "Conduction band effective density of states (cm^-3)."
+        },
+        "vbEffectiveDensity": {
+          "type": "number",
+          "description": "Valence band effective density of states (cm^-3)."
+        },
+        "electronMobility": {
+          "type": "number",
+          "description": "Electron mobility (cm^2/Vs)."
+        },
+        "holeMobility": {
+          "type": "number",
+          "description": "Hole mobility (cm^2/Vs)."
+        },
+        "donorDensity": {
+          "type": "number",
+          "description": "Donor density (cm^-3)."
+        },
+        "acceptorDensity": {
+          "type": "number",
+          "description": "Acceptor density (cm^-3)."
+        }
+      }
+    },
+    "InterfaceDefect": {
+      "title": "InterfaceDefect",
+      "description": "Parameters for an interface defect between layers.",
+      "type": "object",
+      "properties": {
+        "betweenLayers": {
+          "type": "string",
+          "description": "Description of which layers this interface is between (e.g., 'Window/Buffer')."
+        },
+        "defectType": {
+          "type": "string",
+          "enum": ["Neutral", "Donor", "Acceptor"]
+        },
+        "captureCrossSectionElectron": {
+          "type": "number",
+          "description": "Capture cross section for electrons (cm^2)."
+        },
+        "captureCrossSectionHole": {
+          "type": "number",
+          "description": "Capture cross section for holes (cm^2)."
+        },
+        "totalDensity": {
+          "type": "number",
+          "description": "Total defect density (cm^-2)."
+        },
+        "energyLevel": {
+          "type": "number",
+          "description": "Energy level relative to reference (eV)."
+        }
+      }
+    }
+  },
+  "firestore": {
+    "/simulations/{simulationId}": {
+      "schema": "Simulation",
+      "description": "Collection of solar cell simulations."
+    }
+  }
+}
