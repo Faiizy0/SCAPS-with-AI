@@ -936,7 +936,7 @@ function LayerCard({ layer, isEditing, onChange, onMoveUp, onMoveDown, onRemove 
                 ) : (
                   <>
                     <ParamInput label="Material" value={layer.material} isEditing={isEditing} onChange={v => onChange({ ...layer, material: v })} />
-                    <ParamInput label="Thickness (µm)" value={layer.thickness} type="number" isEditing={isEditing} onChange={v => onChange({ ...layer, thickness: Number(v) })} />
+                    <ParamInput label="Thickness (um)" value={layer.thickness} type="number" isEditing={isEditing} onChange={v => onChange({ ...layer, thickness: Number(v) })} />
                     <ParamInput label="Bandgap (eV)" value={layer.bandGap} type="number" isEditing={isEditing} onChange={v => onChange({ ...layer, bandGap: Number(v) })} />
                     <ParamInput label="Electron Affinity (eV)" value={layer.electronAffinity} type="number" isEditing={isEditing} onChange={v => onChange({ ...layer, electronAffinity: Number(v) })} />
                     <ParamInput label="Dielectric Perm." value={layer.dielectricPermittivity} type="number" isEditing={isEditing} onChange={v => onChange({ ...layer, dielectricPermittivity: Number(v) })} />
@@ -1072,12 +1072,7 @@ function ParamInput({ label, value, type = "text", isEditing, onChange, scientif
 
   const formatValue = (val: any) => {
     if (typeof val !== 'number') return val;
-    if (scientific) {
-      // Format as 1.000E+1 or 1.234E+18
-      const formatted = val.toExponential(3).toUpperCase();
-      return formatted;
-    }
-    return val;
+    return val.toExponential(1).toUpperCase();
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
